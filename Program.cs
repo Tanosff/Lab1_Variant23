@@ -1,128 +1,122 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.IO;
-using System.Text;
-using Newtonsoft.Json;
+using System.Linq;
 
 class Program
 {
     static void Main()
     {
-        // щоб українські букви нормально відображались
-        Console.OutputEncoding = Encoding.UTF8;
-
-        Task1_23();
+        Console.WriteLine("Lab 1. Variant 23");
         Console.WriteLine();
 
-        Task2_23();
+        Task1();
         Console.WriteLine();
 
-        Task3_23();
+        Task2();
+        Console.WriteLine();
 
-        Console.ReadKey();
+        Task3();
+
+        Console.WriteLine();
+        Console.WriteLine("Program finished.");
+        Console.ReadLine();
     }
 
-    // Завдання 1.23
-    static void Task1_23()
+    static void Task1()
     {
-        Console.WriteLine("===== Завдання 1.23 =====");
+        Console.WriteLine("Task 1. Swap minimum and maximum elements in list");
 
-        Random rand = new Random();
-        List<int> numbers = new List<int>();
+        List<int> numbers = new List<int> { 12, 5, 23, 8, 1, 17, 31, 9 };
 
-        // генеруємо унікальні числа
-        while (numbers.Count < 10)
+        Console.WriteLine("Original list:");
+        Console.WriteLine(string.Join(" ", numbers));
+
+        int min = numbers.Min();
+        int max = numbers.Max();
+
+        int minIndex = numbers.IndexOf(min);
+        int maxIndex = numbers.IndexOf(max);
+
+        numbers[minIndex] = max;
+        numbers[maxIndex] = min;
+
+        Console.WriteLine("Minimum element: " + min);
+        Console.WriteLine("Maximum element: " + max);
+
+        Console.WriteLine("List after swap:");
+        Console.WriteLine(string.Join(" ", numbers));
+    }
+
+    static void Task2()
+    {
+        Console.WriteLine("Task 2. Sort dictionary by values descending and save to JSON");
+
+        Dictionary<string, int> grades = new Dictionary<string, int>();
+
+        grades.Add("Math", 81);
+        grades.Add("Physics", 83);
+        grades.Add("Chemistry", 87);
+
+        Console.WriteLine("Original dictionary:");
+        foreach (var item in grades)
         {
-            int value = rand.Next(1, 100);
-            if (!numbers.Contains(value))
-                numbers.Add(value);
+            Console.WriteLine(item.Key + ": " + item.Value);
         }
 
-        Console.WriteLine("Початковий список:");
-        Console.WriteLine(string.Join(" ", numbers));
+        Dictionary<string, int> sortedGrades = grades
+            .OrderByDescending(item => item.Value)
+            .ToDictionary(item => item.Key, item => item.Value);
 
-        int minIndex = numbers.IndexOf(numbers.Min());
-        int maxIndex = numbers.IndexOf(numbers.Max());
-
-        // обмін
-        int temp = numbers[minIndex];
-        numbers[minIndex] = numbers[maxIndex];
-        numbers[maxIndex] = temp;
-
-        Console.WriteLine("Після обміну мінімального і максимального:");
-        Console.WriteLine(string.Join(" ", numbers));
-
-        SaveToJson(numbers, "task1_23_result.json");
-    }
-
-    // Завдання 2.23
-    static void Task2_23()
-    {
-        Console.WriteLine("===== Завдання 2.23 =====");
-
-        Random rand = new Random();
-
-        Dictionary<string, int> subjects = new Dictionary<string, int>
+        Console.WriteLine("Sorted dictionary:");
+        foreach (var item in sortedGrades)
         {
-            { "Math", rand.Next(60, 100) },
-            { "Physics", rand.Next(60, 100) },
-            { "Chemistry", rand.Next(60, 100) }
-        };
+            Console.WriteLine(item.Key + ": " + item.Value);
+        }
 
-        Console.WriteLine("Початковий словник:");
-        foreach (var item in subjects)
-            Console.WriteLine($"{item.Key}: {item.Value}");
+        string json = "{\n";
 
-        var sorted = subjects
-            .OrderByDescending(x => x.Value)
-            .ToDictionary(x => x.Key, x => x.Value);
+        int counter = 0;
 
-        Console.WriteLine("Відсортований словник за спаданням:");
-        foreach (var item in sorted)
-            Console.WriteLine($"{item.Key}: {item.Value}");
+        foreach (var item in sortedGrades)
+        {
+            counter++;
 
-        SaveToJson(sorted, "task2_23_result.json");
+            json += "  \"" + item.Key + "\": " + item.Value;
+
+            if (counter < sortedGrades.Count)
+            {
+                json += ",";
+            }
+
+            json += "\n";
+        }
+
+        json += "}";
+
+        File.WriteAllText("result.json", json);
+
+        Console.WriteLine("Dictionary was saved to result.json");
+        Console.WriteLine("File path:");
+        Console.WriteLine(Path.GetFullPath("result.json"));
     }
 
-    // Завдання 3.23
-    static void Task3_23()
+    static void Task3()
     {
-        Console.WriteLine("===== Завдання 3.23 =====");
+        Console.WriteLine("Task 3. LINQ: odd numbers to strings and sort");
 
-        Random rand = new Random();
-        List<int> numbers = new List<int>();
+        List<int> numbers = new List<int> { 15, 2, 7, 100, 23, 8, 11, 4, 3 };
 
-        for (int i = 0; i < 10; i++)
-            numbers.Add(rand.Next(1, 100)); // тільки додатні
-
-        Console.WriteLine("Початкова послідовність:");
+        Console.WriteLine("Original numbers:");
         Console.WriteLine(string.Join(" ", numbers));
 
-        var oddNumbers = numbers.Where(x => x % 2 != 0);
-        Console.WriteLine("Непарні числа:");
-        Console.WriteLine(string.Join(" ", oddNumbers));
-
-        var result = numbers
-            .Where(x => x % 2 != 0)
-            .Select(x => x.ToString())
-            .OrderBy(x => x)
+        List<string> result = numbers
+            .Where(number => number % 2 != 0)
+            .Select(number => number.ToString())
+            .OrderBy(text => text)
             .ToList();
 
-        Console.WriteLine("Результат (рядки, відсортовані лексикографічно):");
+        Console.WriteLine("Result:");
         Console.WriteLine(string.Join(" ", result));
-
-        SaveToJson(result, "task3_23_result.json");
-    }
-
-    // збереження в JSON
-    static void SaveToJson<T>(T data, string fileName)
-    {
-        string path = Path.Combine(Directory.GetCurrentDirectory(), fileName);
-
-        string json = JsonConvert.SerializeObject(data, Formatting.Indented);
-        File.WriteAllText(path, json);
-
-        Console.WriteLine($"Результат збережено у файл: {path}");
     }
 }
