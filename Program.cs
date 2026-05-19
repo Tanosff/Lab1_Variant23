@@ -115,7 +115,6 @@ class Program
             .Select(number => number.ToString())
             .OrderBy(text => text)
             .ToList();
-
         Console.WriteLine("Result:");
         Console.WriteLine(string.Join(" ", result));
     }
